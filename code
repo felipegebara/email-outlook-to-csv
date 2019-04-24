@@ -1,0 +1,33 @@
+import win32com.client
+import os
+import time
+import datetime as dt
+import io
+
+
+date_time = dt.datetime.now()
+
+lastHourDateTime = dt.datetime.now() - dt.timedelta(hours = 24)
+
+outlook = win32com.client.Dispatch("Outlook.Application").GetNameSpace("MAPI")
+inbox = outlook.GetDefaultFolder(6)
+
+messages = inbox.Items
+messages.Sort("[ReceivedTime]", True)
+
+
+fileCollect = io.open("email.csv", mode="w", encoding="utf-8")
+
+#fileCollect = open("email.csv", 'a')
+delimiter = "|"
+lastHourMessages = messages.Restrict("[ReceivedTime] >= '" +lastHourDateTime.strftime('%m/%d/%Y %H:%M %p')+"'")
+
+lastMinuteMessages = messages.Restrict("[ReceivedTime] >= '" +lastMinuteDateTime.strftime('%m/%d/%Y %H:%M %p')+"'")
+
+for message in lastHourMessages:
+    subject = message.Subject
+    body = message.body
+    date = message.senton.date()
+    sender = message.Sender
+    attachments = message.Attachments
+    fileCollect.write(str(date) + delimiter +str(subject) + delimiter +str(sender) + "\n")
